@@ -2,6 +2,8 @@
 一、deb.py是数据库文件
 二、load.py是登录系统文件
 三、client.py是用户操作端文件
+四、item.db是sqlite测试的时候创建的文件
+五、school_db是mysql用的数据库文件，在终端上由指令创建
 ~~~~
 ***一、接口地址***
 ~~~text
