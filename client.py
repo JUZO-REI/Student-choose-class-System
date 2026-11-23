@@ -99,7 +99,10 @@ def main():
                     print("感谢使用喵！")
                     break
                 elif chooses=="1":
-                    c=int(input("直接查找请按1，按学分或剩余名额请按2:"))
+                    d=input("直接查找按1，按学分或剩余名额排序按2：")
+                    if d=="":
+                        d="0"
+                    c=int(d)
                     if c==1:
                         res = send_request("GET", "/courses/look")
                         if res.status_code == 200:
@@ -110,7 +113,10 @@ def main():
                         else:
                             print(f"获取失败: {res.json().get('detail')}")
                     elif c==2:
-                        c1=int(input("按学分按1，按剩余名额按2："))
+                        d1=input("按学分按1，按剩余名额按2：")
+                        if d1=="":
+                            d1="0"
+                        c1=int(d1)
                         res = send_request("GET", f"/courses/sort/{c1}")
                         if res.status_code == 200:
                             courses = res.json()
@@ -121,6 +127,8 @@ def main():
                             elif c1==2:
                                 for c2 in courses:
                                     print(f"课程号: {c2['course_no']} | 课名: {c2['course_name']} | 教师: {c2['teacher']}| 学分：{c2['credit']}| 剩余容量：{c2['shenyv']}")
+                            else:
+                                print("请输入正确的选项喵！！！")
                         else:
                             print(f"获取失败: {res.json().get('detail')}")
                     else:
@@ -236,7 +244,7 @@ def main():
                             print("课程创建成功！")
                             print(f"序列号：{res.json().get('course_id')}|课程编号：{res.json().get('course_no')}| 课程名：{res.json().get('course_name')}| 学分：{res.json().get('credit')}| 教师：{res.json().get('teacher')}| 总容量：{res.json().get('rongliang')}| 状态：{res.json().get('status')}")
                         else:
-                            print(f"失败: {res.json().get('detail')}")
+                            print(f"失败，请完整输入: {res.json().get('detail')}")
                     except ValueError:
                         print("输入有误！")
 
@@ -290,7 +298,7 @@ def main():
                         courses = res.json()
                         print("\n--- 课程列表 ---")
                         for c in courses:
-                            print(f"课程号: {c['course_no']} | 课名: {c['course_name']} | 教师: {c['teacher']}| 学分：{c['credit']}")
+                            print(f"课程序列号：{c['course_id']} | 课程号: {c['course_no']} | 课名: {c['course_name']} | 教师: {c['teacher']}| 学分：{c['credit']}")
                     else:
                         print(f"获取失败: {res.json().get('detail')}")
                 elif chooses=="9":

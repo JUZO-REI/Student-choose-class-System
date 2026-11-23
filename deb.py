@@ -409,7 +409,7 @@ def get_all_courses(db:sqlite3.Connection=Depends(getdb)):
     cursor = CursorWrapper(db.cursor(),STORAGE_TYPE)
     cursor.execute("SELECT * FROM courses")
     rows = cursor.fetchall()
-    return [{"course_no":row["course_no"],"course_name":row["course_name"],"teacher":row["teacher"],"credit":row["credit"]} for row in rows]#这种单独的要输出的就别加py库了
+    return [{"course_id": row["course_id"], "course_no": row["course_no"], "course_name": row["course_name"], "teacher": row["teacher"], "credit": row["credit"]} for row in rows]#这种单独的要输出的就别加py库了
 #row虽然是对象但是sql3.row不支持点取法所以请像键法一样取值  *也可以换成要返回的三个字段然后输出的时候直接dict(row)
 
 @app.get("/courses/sort/{choice}")#查看课程排序
@@ -531,7 +531,10 @@ def drop_course(course_no: str,student_no:str, db:sqlite3.Connection=Depends(get
     if not cursor.fetchone():
         raise HTTPException(status_code=400, detail="退课失败：你未选择该课程")
 # 2. 执行退课
-    cursor.execute("DELETE FROM enrollments WHERE student_id=%s AND course_id=%s", (stu_row["student_id"], cur_row["course_id"]))
+    if STORAGE_TYPE=="mysql":
+        cursor.execute("DELETE FROM enrollments WHERE student_id=%s AND course_id=%s", (stu_row["student_id"], cur_row["course_id"]))
+    else:
+        cursor.execute("DELETE FROM enrollments WHERE student_id=? AND course_id=?", (stu_row["student_id"], cur_row["course_id"]))
     db.commit()
     return {"message": "退选成功"}
 
