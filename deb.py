@@ -288,6 +288,13 @@ def cla_gengxin(id:int,item:class_gengxin,db:sqlite3.Connection=Depends(getdb),a
     values.append(id)#不要忘记where里需要id的值
     cursor.execute(sql,tuple(values))
     db.commit()#提交更新，只要对数据库里的信息添加修改等操作都要提交
+    if "course_no" in newdate:
+        # 如果课程编号被修改，更新 enrollments 表中的 course_no
+        if STORAGE_TYPE=="mysql":
+            cursor.execute("UPDATE enrollments SET course_no = %s WHERE course_id = %s", (newdate["course_no"], id))
+        else:
+            cursor.execute("UPDATE enrollments SET course_no = ? WHERE course_id = ?", (newdate["course_no"], id))
+        db.commit()
     if STORAGE_TYPE=="mysql":
         cursor.execute("SELECT * FROM courses WHERE course_id = %s", (id,))#重新搜索并return
     else:
@@ -311,7 +318,15 @@ def toggle_student_status(student_no: str,sta:str,db:sqlite3.Connection=Depends(
             raise HTTPException(status_code=404, detail="学生不存在")
         if row['status']==sta:
             raise  HTTPException(status_code=400, detail=f"不能重复修改状态喵!")
+        if sta =="停用":
+            # 检查该学生是否有选课记录
+            cursor.execute("SELECT COUNT(*) AS count FROM enrollments WHERE student_no=%s", (student_no,))
+            r = cursor.fetchone()
+            if r['count'] > 0:
+                cursor.execute("DELETE FROM enrollments WHERE student_no=%s", (student_no,))
+                db.commit()
         cursor.execute("UPDATE students SET status = %s WHERE student_no=%s",(sta,student_no))
+
         db.commit()
         cursor.execute("SELECT * FROM students WHERE student_no = %s", (student_no,))
     else:
@@ -321,6 +336,13 @@ def toggle_student_status(student_no: str,sta:str,db:sqlite3.Connection=Depends(
                     raise HTTPException(status_code=404, detail="学生不存在")
         if row['status']==sta:
                     raise  HTTPException(status_code=400, detail=f"不能重复修改状态喵!")
+        if sta =="停用":
+        # 检查该学生是否有选课记录
+            cursor.execute("SELECT COUNT(*) AS count FROM enrollments WHERE student_no=?", (student_no,))
+            r = cursor.fetchone()
+            if r['count'] > 0:
+                cursor.execute("DELETE FROM enrollments WHERE student_no=?", (student_no,))
+                db.commit()
         cursor.execute("UPDATE students SET status = ? WHERE student_no=?",(sta,student_no))
         db.commit()
         cursor.execute("SELECT * FROM students WHERE student_no = ?", (student_no,))#重新搜索并return

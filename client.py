@@ -208,7 +208,7 @@ def main():
                         else:
                             print(f"失败: {res.json().get('detail')}")
                     except ValueError:
-                        print("学号必须是纯数字！")
+                        print("请检查学号以及性别输入格式，以及学号喵！")
 
                 elif chooses=="2":
                     res = send_request("GET", "/admin/students/look")
@@ -223,6 +223,9 @@ def main():
                 elif chooses=="3":
                     student_no = input("请输入要操作的学生学号: ")
                     sta = input("请输入新状态 (例如 '启用' 或 '停用'): ")
+                    if sta not in ["启用", "停用"]:
+                        print("状态输入有误，请输入 '启用' 或 '停用'。")
+                        continue
                     res = send_request("PATCH", f"/admin/students/xiugai/{student_no}?sta={sta}")
                     if res.status_code == 200:
                         print("状态修改成功！")
